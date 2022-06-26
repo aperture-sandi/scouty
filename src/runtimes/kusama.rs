@@ -162,6 +162,13 @@ async fn try_init_hook(
         .eras_reward_points(&(session.active_era_index - 1), None)
         .await?;
 
+    // Fetch era reward points from this era
+    let this_era_reward_points = api
+        .storage()
+        .staking()
+        .eras_reward_points(&(session.active_era_index), None)
+        .await?;
+
     // Collect previusly era reward
     let era_reward: u128 = if let Some(reward) = api
         .storage()
@@ -280,7 +287,35 @@ async fn try_init_hook(
                 get_validator_points_info(&v.stash, era_reward_points.clone()).await?;
             args.push(points.validator.to_string());
             args.push(points.era_avg.to_string());
-        } else {
+
+           // Make room to stay compatible with future turboflakes changes/additions
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+           args.push("-".to_string());
+
+           let this_points =
+                get_validator_points_info(&v.stash, this_era_reward_points.clone()).await?;
+            args.push(this_points.validator.to_string());
+
+       } else {
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
+            args.push("-".to_string());
             args.push("-".to_string());
             args.push("-".to_string());
         }
@@ -637,6 +672,13 @@ async fn try_run_session_hooks(
             .staking()
             .eras_reward_points(&(session.active_era_index - 1), None)
             .await?;
+
+        // Fetch era reward points from previous era
+        //let this_era_reward_points = api
+        //    .storage()
+        //    .staking()
+        //    .eras_reward_points(&(session.active_era_index), None)
+        //    .await?;
 
         // Collect previusly era reward
         let era_reward: u128 = if let Some(reward) = api
